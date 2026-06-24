@@ -17,10 +17,23 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # Ensure upload and chart directories exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs(os.path.join(app.root_path, 'static', 'css'), exist_ok=True)
-os.makedirs(os.path.join(app.root_path, 'static', 'js'), exist_ok=True)
-os.makedirs(os.path.join(app.root_path, 'static', 'charts'), exist_ok=True)
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except Exception as e:
+    print(f"Could not create upload directory: {e}")
+
+try:
+    os.makedirs(os.path.join(app.root_path, 'static', 'css'), exist_ok=True)
+    os.makedirs(os.path.join(app.root_path, 'static', 'js'), exist_ok=True)
+    os.makedirs(os.path.join(app.root_path, 'static', 'charts'), exist_ok=True)
+except Exception as e:
+    print(f"Could not create static subdirectories (might be read-only): {e}")
+
+# Initialize database tables on startup/import
+try:
+    init_db()
+except Exception as e:
+    print(f"Database initialization failed: {e}")
 
 def get_row_as_dict(row):
     """Convert SQLite Row or MySQL Dict row into standard Python dict."""

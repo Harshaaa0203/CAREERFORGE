@@ -4,8 +4,9 @@ import pandas as pd
 from train_model import train_and_save_models
 
 # File paths for models
-RF_MODEL_PATH = os.path.join('models', 'placement_rf.joblib')
-LR_MODEL_PATH = os.path.join('models', 'placement_lr.joblib')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+RF_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'placement_rf.joblib')
+LR_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'placement_lr.joblib')
 
 def load_models():
     """Load models, training them first if they do not exist."""
