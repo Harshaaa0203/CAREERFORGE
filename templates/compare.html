@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <span class="badge bg-info text-dark mb-2 font-outfit uppercase fw-semibold tracking-wider">Comparison Report</span>
+    <h1 class="text-white font-outfit fw-bold">Resume Head-to-Head Duel</h1>
+    <p class="text-white-50 font-inter">Evaluating profiles side-by-side for the target role: <strong>{{ comparison.role }}</strong></p>
+</div>
+
+<!-- Verdict Box -->
+<div class="glass-card p-4 mb-4" style="background: linear-gradient(135deg, rgba(137, 180, 250, 0.1), rgba(203, 166, 247, 0.1)); border-color: rgba(137, 180, 250, 0.25);">
+    <div class="row align-items-center">
+        <div class="col-md-2 text-center mb-3 mb-md-0">
+            <i class="fa-solid fa-trophy text-warning" style="font-size: 4rem;"></i>
+        </div>
+        <div class="col-md-10">
+            <h4 class="text-white font-outfit fw-bold mb-2">AI Recommendation Verdict</h4>
+            <h5 class="text-info font-outfit">Stronger Match: <span class="text-white">{{ comparison.winner_name }}</span></h5>
+            <p class="text-white-50 mb-0 font-inter leading-relaxed">{{ comparison.verdict }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Comparison Table -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-list-ol text-info me-2"></i> Metric Comparison</h4>
+            
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Metric</span>
+                <div class="d-flex w-75 justify-content-between text-center fw-bold">
+                    <span class="w-50 text-truncate text-info">{{ comparison.candidate_a.name[:12] }}</span>
+                    <span class="w-50 text-truncate text-danger">{{ comparison.candidate_b.name[:12] }}</span>
+                </div>
+            </div>
+
+            <!-- ATS Score Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">ATS Score</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_a.ats_score }}% 
+                        {% if comparison.winners.ats_score == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_b.ats_score }}%
+                        {% if comparison.winners.ats_score == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Skill Match Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Skill Match</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_a.skill_match }}%
+                        {% if comparison.winners.skill_match == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_b.skill_match }}%
+                        {% if comparison.winners.skill_match == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Placement Prob Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Placement Prob</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_a.placement_prob }}%
+                        {% if comparison.winners.placement_prob == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_b.placement_prob }}%
+                        {% if comparison.winners.placement_prob == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Interview Readiness Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Interview Readiness</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_a.interview_readiness }}%
+                        {% if comparison.winners.interview_readiness == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white fs-5">
+                        {{ comparison.candidate_b.interview_readiness }}%
+                        {% if comparison.winners.interview_readiness == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- CGPA Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">CGPA (Normalized)</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_a.cgpa }}/10
+                        {% if comparison.winners.cgpa == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_b.cgpa }}/10
+                        {% if comparison.winners.cgpa == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Projects Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Projects</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_a.projects }} 
+                        {% if comparison.winners.projects == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_b.projects }}
+                        {% if comparison.winners.projects == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Certifications Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Certifications</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_a.certifications }}
+                        {% if comparison.winners.certifications == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_b.certifications }}
+                        {% if comparison.winners.certifications == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Internships Row -->
+            <div class="comp-metric-row d-flex justify-content-between align-items-center">
+                <span class="text-white-50">Internships</span>
+                <div class="d-flex w-75 justify-content-between text-center align-items-center">
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_a.internships }}
+                        {% if comparison.winners.internships == 'A' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                    <span class="w-50 text-white">
+                        {{ comparison.candidate_b.internships }}
+                        {% if comparison.winners.internships == 'B' %}<span class="winner-indicator winner"><i class="fa-solid fa-caret-up"></i></span>{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Visualization (Matplotlib Generated) -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-chart-simple text-info me-2"></i> Visual Alignment Chart</h4>
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename=comparison.chart_path) }}" alt="Comparison Chart" class="img-fluid rounded border border-secondary-subtle shadow">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Skills Breakdown -->
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2 text-info"><i class="fa-solid fa-user me-2"></i> {{ comparison.candidate_a.name }}</h4>
+            <p class="small text-white-50 mb-1"><i class="fa-solid fa-envelope me-1 text-muted"></i> {{ comparison.candidate_a.email }}</p>
+            
+            <h6 class="text-success font-outfit mt-3 mb-2">Matched Skills ({{ comparison.candidate_a.skills|length }})</h6>
+            <div class="d-flex flex-wrap gap-1.5 mb-3">
+                {% for skill in comparison.candidate_a.skills %}
+                    <span class="skill-badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{ skill }}</span>
+                {% endfor %}
+            </div>
+
+            <h6 class="text-danger font-outfit mb-2">Missing Skills ({{ comparison.candidate_a.missing_skills|length }})</h6>
+            <div class="d-flex flex-wrap gap-1.5">
+                {% for skill in comparison.candidate_a.missing_skills %}
+                    <span class="missing-skill-badge">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2 text-danger"><i class="fa-solid fa-user me-2"></i> {{ comparison.candidate_b.name }}</h4>
+            <p class="small text-white-50 mb-1"><i class="fa-solid fa-envelope me-1 text-muted"></i> {{ comparison.candidate_b.email }}</p>
+
+            <h6 class="text-success font-outfit mt-3 mb-2">Matched Skills ({{ comparison.candidate_b.skills|length }})</h6>
+            <div class="d-flex flex-wrap gap-1.5 mb-3">
+                {% for skill in comparison.candidate_b.skills %}
+                    <span class="skill-badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">{{ skill }}</span>
+                {% endfor %}
+            </div>
+
+            <h6 class="text-danger font-outfit mb-2">Missing Skills ({{ comparison.candidate_b.missing_skills|length }})</h6>
+            <div class="d-flex flex-wrap gap-1.5">
+                {% for skill in comparison.candidate_b.missing_skills %}
+                    <span class="missing-skill-badge">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Improvement Suggestions Side-by-side -->
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-wrench text-info me-2"></i> Optimizations for {{ comparison.candidate_a.name[:15] }}</h4>
+            <ul class="list-unstyled mb-0">
+                {% for suggestion in comparison.improvement_suggestions_a %}
+                    <li class="mb-2.5 text-white-50 d-flex align-items-start">
+                        <i class="fa-solid fa-circle-exclamation text-info me-3 mt-1.5" style="font-size: 0.85rem;"></i>
+                        <div>{{ suggestion }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-wrench text-danger me-2"></i> Optimizations for {{ comparison.candidate_b.name[:15] }}</h4>
+            <ul class="list-unstyled mb-0">
+                {% for suggestion in comparison.improvement_suggestions_b %}
+                    <li class="mb-2.5 text-white-50 d-flex align-items-start">
+                        <i class="fa-solid fa-circle-exclamation text-danger me-3 mt-1.5" style="font-size: 0.85rem;"></i>
+                        <div>{{ suggestion }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

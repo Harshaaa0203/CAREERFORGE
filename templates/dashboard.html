@@ -1,0 +1,1054 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8 text-center text-md-start">
+        <span class="badge bg-info text-dark mb-2 font-outfit uppercase fw-semibold tracking-wider">Analysis Complete</span>
+        <h1 class="text-white font-outfit fw-bold mb-1">{{ analysis.candidate_name }}</h1>
+        <p class="text-white-50 mb-0 font-inter">
+            <span class="me-3"><i class="fa-solid fa-envelope me-1 text-info"></i> {{ analysis.email }}</span>
+            <span class="me-3"><i class="fa-solid fa-phone me-1 text-info"></i> {{ analysis.phone }}</span>
+            <span class="me-3"><i class="fa-solid fa-briefcase me-1 text-info"></i> Target Role: <strong>{{ analysis.target_role }}</strong></span>
+            {% if analysis.salary_prediction %}
+                <span><i class="fa-solid fa-indian-rupee-sign me-1 text-info"></i> Est. Package: <strong class="text-success">₹{{ analysis.salary_prediction.low }}L - ₹{{ analysis.salary_prediction.high }}L LPA</strong></span>
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('roadmap', resume_id=resume_id) }}" class="btn btn-gradient-roadmap rounded-pill px-4 py-2.5 fw-bold shadow-lg" style="background: linear-gradient(135deg, #cba6f7, #89b4fa); color: #0c0c16;">
+            <i class="fa-solid fa-route me-2"></i> View Learning Roadmap
+        </a>
+    </div>
+</div>
+
+<!-- Score Cards Section -->
+<!-- Score Cards Section -->
+<div class="row g-4 mb-4">
+    <!-- ATS Score -->
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-white-50 font-outfit mb-3">ATS Score & Ranking</h5>
+                <div class="score-circle-container mb-3">
+                    <div class="score-circle-outer">
+                        <div class="score-circle-inner {% if analysis.ats_score >= 75 %}success{% elif analysis.ats_score >= 55 %}info{% elif analysis.ats_score >= 40 %}warning{% else %}danger{% endif %}">
+                            <span class="fs-2 fw-bold text-white font-outfit">{{ analysis.ats_score }}%</span>
+                            <span class="small text-muted font-inter">Score</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="small text-muted mb-0">
+                {% if analysis.ats_score >= 75 %}
+                    Excellent formatting & layout structure. Passes automated filters.
+                {% elif analysis.ats_score >= 55 %}
+                    Moderate compatibility. Some section adjustments required.
+                {% else %}
+                    Needs immediate attention. Format structure fails automated filters.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Skill Match -->
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-white-50 font-outfit mb-3">Skill Match Percentage</h5>
+                <div class="score-circle-container mb-3">
+                    <div class="score-circle-outer">
+                        <div class="score-circle-inner {% if analysis.skill_match_percentage >= 75 %}success{% elif analysis.skill_match_percentage >= 50 %}primary{% elif analysis.skill_match_percentage >= 30 %}warning{% else %}danger{% endif %}">
+                            <span class="fs-2 fw-bold text-white font-outfit">{{ analysis.skill_match_percentage }}%</span>
+                            <span class="small text-muted font-inter">Matched</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="small text-muted mb-0">
+                Extracted {{ analysis.matched_skills|length }} out of {{ analysis.matched_skills|length + analysis.missing_skills|length }} required skills for this job role.
+            </p>
+        </div>
+    </div>
+
+    <!-- Placement Probability -->
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-white-50 font-outfit mb-3">Placement Prediction (ML)</h5>
+                <div class="score-circle-container mb-3">
+                    <div class="score-circle-outer">
+                        <div class="score-circle-inner {% if analysis.placement_prediction.placement_probability >= 75 %}success{% elif analysis.placement_prediction.placement_probability >= 50 %}info{% else %}danger{% endif %}">
+                            <span class="fs-2 fw-bold text-white font-outfit">{{ analysis.placement_prediction.placement_probability }}%</span>
+                            <span class="small text-muted font-inter">Probability</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span class="badge {% if analysis.placement_prediction.status == 'Highly Probable' %}bg-success-subtle text-success{% elif analysis.placement_prediction.status == 'Probable' %}bg-info-subtle text-info{% else %}bg-danger-subtle text-danger{% endif %} mb-2 px-3 py-1.5 font-outfit">
+                    {{ analysis.placement_prediction.status }}
+                </span>
+                <p class="small text-muted mb-0">Based on CGPA, projects, certifications, internships, and skill alignments.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Readiness Score -->
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-white-50 font-outfit mb-3">Interview Readiness</h5>
+                <div class="score-circle-container mb-3">
+                    <div class="score-circle-outer">
+                        <div class="score-circle-inner {% if analysis.interview_readiness.score >= 75 %}success{% elif analysis.interview_readiness.score >= 55 %}info{% elif analysis.interview_readiness.score >= 40 %}warning{% else %}danger{% endif %}">
+                            <span class="fs-2 fw-bold text-white font-outfit">{{ analysis.interview_readiness.score }}%</span>
+                            <span class="small text-muted font-inter">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span class="badge {% if analysis.interview_readiness.score >= 75 %}bg-success-subtle text-success{% elif analysis.interview_readiness.score >= 55 %}bg-info-subtle text-info{% else %}bg-danger-subtle text-danger{% endif %} mb-2 px-3 py-1.5 font-outfit">
+                    {% if analysis.interview_readiness.score >= 75 %}Job-Ready{% elif analysis.interview_readiness.score >= 55 %}Needs Polish{% else %}Unprepared{% endif %}
+                </span>
+                <p class="small text-muted mb-0">Weighted alignment of skills, project logs, credentials, and work experience.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-pills nav-pills-custom justify-content-center mb-5" id="dashboardTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="diagnostics-tab" data-bs-toggle="tab" data-bs-target="#diagnostics-content" type="button" role="tab" aria-controls="diagnostics-content" aria-selected="true">
+            <i class="fa-solid fa-chart-line me-2"></i> Profile Diagnostics
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="career-tab" data-bs-toggle="tab" data-bs-target="#career-content" type="button" role="tab" aria-controls="career-content" aria-selected="false">
+            <i class="fa-solid fa-briefcase me-2"></i> Career & Credentials
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects-content" type="button" role="tab" aria-controls="projects-content" aria-selected="false">
+            <i class="fa-solid fa-laptop-code me-2"></i> Project Recommendations
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="interview-tab" data-bs-toggle="tab" data-bs-target="#interview-content" type="button" role="tab" aria-controls="interview-content" aria-selected="false">
+            <i class="fa-solid fa-microphone me-2"></i> Mock HR Interview
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Contents -->
+<div class="tab-content" id="dashboardTabContent">
+    <!-- Tab 1: Profile Diagnostics -->
+    <div class="tab-pane fade show active" id="diagnostics-content" role="tabpanel" aria-labelledby="diagnostics-tab">
+        <div class="row g-4 mb-4">
+            <!-- Profile Stats Checklist -->
+            <div class="col-lg-4">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-circle-check text-info me-2"></i> Profile Metrics</h4>
+                    <div class="table-responsive">
+                        <table class="table table-borderless text-white-50 mb-0">
+                            <tbody>
+                                <tr>
+                                    <td><i class="fa-solid fa-graduation-cap text-muted me-2"></i> Normalized CGPA:</td>
+                                    <td class="text-end fw-bold text-white">{{ analysis.metrics.cgpa }}/10.0</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa-solid fa-diagram-project text-muted me-2"></i> Tech Projects:</td>
+                                    <td class="text-end fw-bold text-white">{{ analysis.metrics.projects_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa-solid fa-certificate text-muted me-2"></i> Certifications:</td>
+                                    <td class="text-end fw-bold text-white">{{ analysis.metrics.certifications_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa-solid fa-business-time text-muted me-2"></i> Internships:</td>
+                                    <td class="text-end fw-bold text-white">{{ analysis.metrics.internships_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa-solid fa-clock text-muted me-2"></i> Work Experience:</td>
+                                    <td class="text-end fw-bold text-white">{{ analysis.metrics.experience_years }} yr(s)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Resume Sections Completeness Checklist -->
+                    <h4 class="text-white font-outfit mt-4 mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-list-check text-info me-2"></i> Resume Structure</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-info me-2 small"></i> Education Section</span>
+                            <span>
+                                {% if 'Education' in analysis.strengths or 'Education' in analysis.suggestions %}
+                                    <i class="fa-solid fa-circle-check text-success"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-check text-success"></i> <!-- Default to checked if general score is fine -->
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-info me-2 small"></i> Technical Skills Section</span>
+                            <span><i class="fa-solid fa-circle-check text-success"></i></span>
+                        </li>
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-info me-2 small"></i> Project History Section</span>
+                            <span><i class="fa-solid fa-circle-check text-success"></i></span>
+                        </li>
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-info me-2 small"></i> Experience / Internships</span>
+                            <span>
+                                {% if analysis.metrics.internships_count > 0 or analysis.metrics.experience_years > 0 %}
+                                    <i class="fa-solid fa-circle-check text-success"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-xmark text-danger"></i>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span><i class="fa-solid fa-circle text-info me-2 small"></i> Certifications & Credentials</span>
+                            <span>
+                                {% if analysis.metrics.certifications_count > 0 %}
+                                    <i class="fa-solid fa-circle-check text-success"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-xmark text-danger"></i>
+                                {% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Skill Radar Chart and Missing Keywords -->
+            <div class="col-lg-8">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-chart-pie text-info me-2"></i> Skill Analysis Dashboard</h4>
+                    <div class="row align-items-center">
+                        <div class="col-md-7 mb-3 mb-md-0" style="min-height: 250px;">
+                            <canvas id="skillsRadarChart"></canvas>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="text-white font-outfit mb-2">Extracted Technical Skills ({{ analysis.matched_skills|length }})</h6>
+                            <div class="d-flex flex-wrap gap-1.5 mb-3" style="max-height: 120px; overflow-y: auto; padding: 4px;">
+                                {% for skill in analysis.matched_skills %}
+                                    <span class="skill-badge">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <h6 class="text-danger font-outfit mb-2">Missing Skills Gaps ({{ analysis.missing_skills|length }})</h6>
+                            <div class="d-flex flex-wrap gap-1.5 mb-3" style="max-height: 120px; overflow-y: auto; padding: 4px;">
+                                {% if analysis.missing_skills %}
+                                    {% for skill in analysis.missing_skills %}
+                                        <span class="missing-skill-badge">{{ skill }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="badge bg-success-subtle text-success">None! Perfect Skill Alignment.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Readiness Category Breakdowns -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-gauge-high text-info me-2"></i> Interview Readiness Breakdown</h4>
+            <div class="row g-4">
+                <div class="col-md-7">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-white-50">Technical Readiness (Skill Match)</span>
+                            <span class="small fw-bold text-info">{{ analysis.interview_readiness.categories.technical }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 8px;">
+                            <div class="progress-bar bg-info" style="width: {{ analysis.interview_readiness.categories.technical }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-white-50">Project & Practical Readiness</span>
+                            <span class="small fw-bold text-success">{{ analysis.interview_readiness.categories.project }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ analysis.interview_readiness.categories.project }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-white-50">Experience & Industry Readiness</span>
+                            <span class="small fw-bold text-warning">{{ analysis.interview_readiness.categories.experience }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ analysis.interview_readiness.categories.experience }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-white-50">ATS Formatting Readiness</span>
+                            <span class="small fw-bold text-primary">{{ analysis.interview_readiness.categories.ats_formatting }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: {{ analysis.interview_readiness.categories.ats_formatting }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-white-50">Credential & Certification Readiness</span>
+                            <span class="small fw-bold text-secondary">{{ analysis.interview_readiness.categories.certification }}%</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: {{ analysis.interview_readiness.categories.certification }}%; background: linear-gradient(135deg, #89b4fa, #cba6f7);"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 bg-dark bg-opacity-25 rounded p-3 border border-secondary-subtle d-flex flex-column justify-content-center">
+                    <h6 class="text-white font-outfit mb-2"><i class="fa-solid fa-circle-exclamation text-info me-1"></i> Optimization Strategies</h6>
+                    <ul class="list-unstyled mb-0 small text-white-50">
+                        {% for tip in analysis.interview_readiness.tips %}
+                            <li class="mb-2.5 d-flex align-items-start">
+                                <i class="fa-solid fa-angle-right text-info me-2 mt-1"></i>
+                                <span>{{ tip }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Industry Benchmarking Widget -->
+        {% if analysis.benchmarks %}
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-chart-bar text-info me-2"></i> Industry Placement Benchmarking</h4>
+            <p class="text-white-50 small mb-4">See how your qualifications compare against the average metrics of successfully placed candidates for the <strong>{{ analysis.target_role }}</strong> role.</p>
+            
+            <div class="row g-4 align-items-center">
+                <div class="col-md-7">
+                    <!-- CGPA Comparison -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-white-50">CGPA Fit</span>
+                            <span class="text-white-50">You: <strong>{{ analysis.metrics.cgpa }}</strong> / Benchmark: <strong>{{ analysis.benchmarks.cgpa }}</strong></span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            <div class="progress-bar {% if analysis.metrics.cgpa >= analysis.benchmarks.cgpa %}bg-success{% else %}bg-warning{% endif %}" style="width: {{ analysis.metrics.cgpa * 10 }}%;" title="You"></div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Comparison -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-white-50">Tech Projects</span>
+                            <span class="text-white-50">You: <strong>{{ analysis.metrics.projects_count }}</strong> / Benchmark: <strong>{{ analysis.benchmarks.projects_count }}</strong></span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            <div class="progress-bar {% if analysis.metrics.projects_count >= analysis.benchmarks.projects_count %}bg-success{% else %}bg-warning{% endif %}" style="width: {{ analysis.metrics.projects_count * 20 }}%;" title="You"></div>
+                        </div>
+                    </div>
+
+                    <!-- Internships Comparison -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-white-50">Internships</span>
+                            <span class="text-white-50">You: <strong>{{ analysis.metrics.internships_count }}</strong> / Benchmark: <strong>{{ analysis.benchmarks.internships_count }}</strong></span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            <div class="progress-bar {% if analysis.metrics.internships_count >= analysis.benchmarks.internships_count %}bg-success{% else %}bg-warning{% endif %}" style="width: {{ analysis.metrics.internships_count * 50 }}%;" title="You"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Match Comparison -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-white-50">Skill Match %</span>
+                            <span class="text-white-50">You: <strong>{{ analysis.skill_match_percentage }}%</strong> / Benchmark: <strong>{{ analysis.benchmarks.skill_match_percentage }}%</strong></span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            <div class="progress-bar {% if analysis.skill_match_percentage >= analysis.benchmarks.skill_match_percentage %}bg-success{% else %}bg-warning{% endif %}" style="width: {{ analysis.skill_match_percentage }}%;" title="You"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="p-3 rounded bg-dark bg-opacity-25 border border-secondary-subtle">
+                        <h6 class="text-white font-outfit mb-3"><i class="fa-solid fa-ranking-star text-info me-1"></i> Competitive Standings</h6>
+                        <ul class="list-unstyled mb-0 small text-white-50">
+                            <li class="mb-2 d-flex justify-content-between">
+                                <span>Academic Status:</span>
+                                {% if analysis.metrics.cgpa >= analysis.benchmarks.cgpa %}
+                                    <span class="text-success"><i class="fa-solid fa-circle-chevron-up"></i> Above Avg</span>
+                                {% else %}
+                                    <span class="text-warning"><i class="fa-solid fa-circle-chevron-down"></i> Under Bench</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between">
+                                <span>Practical Experience:</span>
+                                {% if analysis.metrics.projects_count >= analysis.benchmarks.projects_count %}
+                                    <span class="text-success"><i class="fa-solid fa-circle-chevron-up"></i> Plentiful</span>
+                                {% else %}
+                                    <span class="text-warning"><i class="fa-solid fa-circle-chevron-down"></i> Needs Projects</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between">
+                                <span>Placement Probability:</span>
+                                <span class="text-info fw-bold">{{ analysis.placement_prediction.placement_probability }}%</span>
+                            </li>
+                            <li class="d-flex justify-content-between border-top border-secondary border-opacity-10 pt-2 mt-2">
+                                <span>Target Baseline LPA:</span>
+                                <span class="text-white fw-bold">₹{{ analysis.salary_prediction.median }} LPA</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4 mb-4">
+            <!-- Strengths and Weaknesses -->
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-thumbs-up text-success me-2"></i> Key Strengths & Achievements</h4>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        {% for strength in analysis.strengths %}
+                            <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2.5 px-0 d-flex align-items-start">
+                                <i class="fa-solid fa-circle-check text-success me-3 mt-1 fs-5"></i>
+                                <div>{{ strength }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Weaknesses & Gaps -->
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Potential Risks & Weaknesses</h4>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        {% if analysis.weaknesses %}
+                            {% for weakness in analysis.weaknesses %}
+                                <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2.5 px-0 d-flex align-items-start">
+                                    <i class="fa-solid fa-circle-xmark text-danger me-3 mt-1 fs-5"></i>
+                                    <div>{{ weakness }}</div>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-3 px-0 text-center">
+                                <i class="fa-solid fa-check-double text-success me-2"></i> No major profile risks detected!
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggestions & Action Items -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-lightbulb text-info me-2"></i> Suggested Resume Optimization Strategies</h4>
+            <div class="row">
+                <div class="col-md-7 mb-3 mb-md-0">
+                    <ul class="list-unstyled">
+                        {% for suggestion in analysis.suggestions %}
+                            <li class="mb-3 d-flex align-items-start">
+                                <span class="d-flex align-items-center justify-content-center bg-info text-dark rounded-circle me-3 mt-1" style="width: 24px; height: 24px; min-width: 24px; font-size: 0.8rem; font-weight: bold;">
+                                    {{ loop.index }}
+                                </span>
+                                <div class="text-white-50">{{ suggestion }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-5 bg-dark bg-opacity-25 rounded p-3 border border-secondary-subtle">
+                    <h6 class="text-white font-outfit mb-2"><i class="fa-solid fa-tags text-info me-1"></i> Missing Industry Keywords</h6>
+                    <p class="small text-muted mb-3">Add these exact terminologies into your project descriptions and profile summaries to index higher on Applicant Tracking System databases:</p>
+                    <div class="d-flex flex-wrap gap-1.5">
+                        {% for keyword in analysis.missing_keywords %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-2.5 py-1.5">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Career & Credentials -->
+    <div class="tab-pane fade" id="career-content" role="tabpanel" aria-labelledby="career-tab">
+        <div class="row g-4">
+            <!-- Alternative Role Recommendations -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-compass text-info me-2"></i> Recommended Career Paths</h4>
+                    <p class="text-white-50 small mb-4">Based on the skills extracted from your resume, here are alternative professional roles that align well with your profile:</p>
+                    
+                    <div class="d-flex flex-column gap-4">
+                        {% for rec in analysis.role_recommendations %}
+                            <div class="p-3 rounded bg-dark bg-opacity-30 border border-secondary-subtle">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="text-white font-outfit mb-0 fw-bold">{{ rec.role }}</h5>
+                                    <span class="badge bg-info text-dark font-outfit px-3 py-1.5 fs-6">{{ rec.match_percentage }}% Match</span>
+                                </div>
+                                <div class="progress bg-dark mb-3" style="height: 6px;">
+                                    <div class="progress-bar bg-info" style="width: {{ rec.match_percentage }}%;"></div>
+                                </div>
+                                
+                                {% if rec.matched_skills %}
+                                    <div class="mb-2">
+                                        <span class="text-white-50 small d-block mb-1">Shared Skills in Resume:</span>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for skill in rec.matched_skills %}
+                                                <span class="badge bg-success-subtle text-success px-2 py-1" style="font-size: 0.75rem;">{{ skill }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if rec.missing_skills %}
+                                    <div>
+                                        <span class="text-white-50 small d-block mb-1">Missing Skills to Acquire:</span>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for skill in rec.missing_skills[:5] %}
+                                                <span class="badge bg-danger-subtle text-danger px-2 py-1" style="font-size: 0.75rem;">{{ skill }}</span>
+                                            {% endfor %}
+                                            {% if rec.missing_skills|length > 5 %}
+                                                <span class="badge bg-secondary px-2 py-1" style="font-size: 0.75rem;">+{{ rec.missing_skills|length - 5 }} more</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Certification Recommendations -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-award text-info me-2"></i> Recommended Certifications</h4>
+                    <p class="text-white-50 small mb-4">Adding these professional credentials to your profile will significantly boost your credibility and pass resume filters:</p>
+                    
+                    <ul class="list-group list-group-flush bg-transparent">
+                        {% for cert in analysis.cert_recommendations %}
+                            <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-3 px-0 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-medal text-warning me-3 fs-5"></i>
+                                    <div>
+                                        <span class="text-white fw-bold d-block">{{ cert.name }}</span>
+                                    </div>
+                                </div>
+                                <a href="{{ cert.link }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 font-inter fs-7">
+                                    Register <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab 3: Project Recommendations -->
+    <div class="tab-pane fade" id="projects-content" role="tabpanel" aria-labelledby="projects-tab">
+        <div class="glass-card p-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-cubes text-info me-2"></i> Practical Project Recommendations</h4>
+            <p class="text-white-50 small mb-4">Build these hands-on projects to bridge technical gaps, demonstrate engineering capability, and enrich your portfolio for the <strong>{{ analysis.target_role }}</strong> role.</p>
+            
+            <div class="row g-4">
+                {% for proj in analysis.project_recommendations %}
+                    <div class="col-md-6">
+                        <div class="p-4 rounded bg-dark bg-opacity-40 border border-secondary-subtle h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="text-white font-outfit mb-0 fw-bold">{{ proj.title }}</h5>
+                                    <div>
+                                        <span class="badge {% if proj.difficulty == 'Advanced' %}bg-danger-subtle text-danger{% elif proj.difficulty == 'Intermediate' %}bg-warning-subtle text-warning{% else %}bg-success-subtle text-success{% endif %} font-outfit me-1">{{ proj.difficulty }}</span>
+                                        <span class="badge bg-secondary font-outfit">{{ proj.time_estimate }}</span>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-white-50 small mb-3">{{ proj.description }}</p>
+                                
+                                <div class="mb-3">
+                                    <span class="text-white-50 small d-block mb-1.5 fw-semibold">Tech Stack:</span>
+                                    <div class="d-flex flex-wrap gap-1.5">
+                                        {% for tech in proj.tech_stack %}
+                                            <span class="badge bg-dark border border-secondary border-opacity-25 px-2 py-1 text-white-50" style="font-size: 0.75rem;">{{ tech }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="text-white-50 small d-block mb-1.5 fw-semibold">Implementation Roadmap:</span>
+                                    <ul class="list-unstyled mb-0 text-white-50 small ps-2">
+                                        {% for step in proj.steps %}
+                                            <li class="mb-1.5 d-flex align-items-start">
+                                                <i class="fa-solid fa-circle text-info me-2 mt-2" style="font-size: 0.4rem;"></i>
+                                                <span>{{ step }}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end pt-3 border-top border-secondary border-opacity-10 mt-3">
+                                <a href="{{ proj.reference_link }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-4">
+                                    View Resources <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab 4: Mock HR Interview Panel -->
+    <div class="tab-pane fade" id="interview-content" role="tabpanel" aria-labelledby="interview-tab">
+        <div class="glass-card p-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-microphone text-info me-2"></i> Interactive Mock HR Interview Simulator</h4>
+            <p class="text-white-50 small mb-4">Practice typical behavioral and HR questions designed for the <strong>{{ analysis.target_role }}</strong> role. Type your answer and submit for immediate NLP grading and structural feedback.</p>
+            
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <!-- Question Display -->
+                    <div class="p-3 mb-4 rounded bg-dark bg-opacity-30 border border-secondary-subtle">
+                        <span class="badge bg-secondary font-outfit uppercase fw-semibold mb-2">Question <span id="q-num">1</span> of 5</span>
+                        <h5 class="text-white font-outfit mb-0 fw-bold" id="question-text">
+                            {% if analysis.hr_questions %}{{ analysis.hr_questions[0] }}{% else %}Tell me about yourself and why you're interested in the target role.{% endif %}
+                        </h5>
+                    </div>
+                    
+                    <!-- Response Input -->
+                    <div class="mb-4">
+                        <label for="mock-response" class="form-label text-white-50 fw-semibold">Type your response below (Try to follow the STAR methodology):</label>
+                        <textarea class="form-control bg-dark text-white border-secondary-subtle py-3" id="mock-response" rows="6" placeholder="e.g. In my previous project, we faced a situation where... My task was to... I implemented... As a result, we..."></textarea>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="small text-muted" id="word-counter">0 words</span>
+                            <span class="small text-muted">STAR tip: Include Situation, Task, Action, and Result.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" id="skip-q-btn" onclick="nextQuestion()">Skip Question</button>
+                        <button type="button" class="btn btn-info rounded-pill px-5 fw-bold" id="submit-ans-btn" onclick="submitAnswer()">Submit Response</button>
+                    </div>
+                </div>
+                
+                <div class="col-lg-5">
+                    <!-- Grade / Feedback Board -->
+                    <div class="p-3 rounded border border-secondary-subtle h-100 d-flex flex-column justify-content-center text-center" style="background: rgba(17, 17, 27, 0.45); min-height: 320px;" id="grade-panel-placeholder">
+                        <div class="text-white-50">
+                            <i class="fa-solid fa-ranking-star fs-1 text-muted mb-3 d-block" id="awaiting-icon"></i>
+                            <div class="spinner-border text-info mb-3 d-none" style="width: 3rem; height: 3rem;" role="status" id="eval-spinner">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h5 id="awaiting-title">Awaiting Response</h5>
+                            <p class="small mb-0" id="awaiting-desc">Grade dashboard and constructive critique will load here.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actual Grade Board (hidden by default) -->
+                    <div class="p-4 rounded border border-secondary-subtle h-100 d-none" style="background: rgba(17, 17, 27, 0.45);" id="grade-panel-actual">
+                        <h5 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-square-poll-vertical text-info me-2"></i> AI Response Evaluation</h5>
+                        
+                        <div class="text-center mb-4">
+                            <div class="d-inline-block px-4 py-3 rounded-3 bg-dark bg-opacity-70 border border-secondary-subtle">
+                                <span class="d-block text-white-50 small font-outfit">Response Score</span>
+                                <span class="fs-1 fw-bold text-success" id="grade-score">85%</span>
+                            </div>
+                        </div>
+                        
+                        <ul class="list-group list-group-flush bg-transparent mb-4">
+                            <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2 px-0 d-flex justify-content-between">
+                                <span>Grammar Check:</span>
+                                <span class="text-white fw-bold" id="grade-grammar">Excellent</span>
+                            </li>
+                            <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2 px-0 d-flex justify-content-between align-items-center">
+                                <span>STAR Framework Checklist:</span>
+                                <div class="d-flex gap-1" id="star-badges">
+                                    <span class="badge bg-success-subtle text-success">S</span>
+                                    <span class="badge bg-success-subtle text-success">T</span>
+                                    <span class="badge bg-success-subtle text-success">A</span>
+                                    <span class="badge bg-danger-subtle text-danger">R</span>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <h6 class="text-white font-outfit mb-2"><i class="fa-solid fa-list-check text-info me-1"></i> Diagnostic Feedback</h6>
+                        <ul class="list-unstyled mb-0 small text-white-50" id="grade-feedback-list">
+                            <li>- Good job referencing technology stack keywords.</li>
+                        </ul>
+                        
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-4" onclick="nextQuestion()">Next Question</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Floating AI Chat Widget -->
+<div class="floating-chat-toggle" id="chat-toggle-btn" onclick="toggleFloatingChat()">
+    <i class="fa-solid fa-robot"></i>
+</div>
+
+<div class="floating-chat-container" id="chat-widget-container">
+    <div class="floating-chat-header">
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-info text-dark" style="width: 32px; height: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div>
+                <span class="text-white fw-bold d-block font-outfit" style="font-size: 0.95rem; line-height: 1.2;">AI Career Coach</span>
+                <span class="text-success small d-block" style="font-size: 0.75rem;">Online</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" style="font-size: 0.8rem;" onclick="toggleFloatingChat()"></button>
+    </div>
+    
+    <div class="floating-chat-body" id="chat-logs">
+        <!-- Default message -->
+        <div class="chat-msg system d-flex gap-2.5 max-width-75 mb-3" style="align-self: flex-start;">
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-info text-dark" style="width: 32px; height: 32px; min-width: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div class="p-3 rounded-3 bg-dark bg-opacity-70 border border-secondary-subtle text-white-50 small" style="border-bottom-left-radius: 0 !important;">
+                Hello! I am your CareerForge AI placement consultant. I have scanned your resume for the **{{ analysis.target_role }}** role. Ask me anything about your missing skills, predicted salary, roadmap, or interview tips!
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-chat-suggestions">
+        <button class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 text-white-50" style="font-size: 0.72rem; padding: 3px 10px;" onclick="sendQuickQuery('How do I learn my missing skills?')">Missing Skills</button>
+        <button class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 text-white-50" style="font-size: 0.72rem; padding: 3px 10px;" onclick="sendQuickQuery('What is my predicted salary range?')">Salary Prediction</button>
+        <button class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 text-white-50" style="font-size: 0.72rem; padding: 3px 10px;" onclick="sendQuickQuery('What project should I build next?')">Projects</button>
+        <button class="btn btn-xs btn-outline-secondary rounded-pill px-2.5 py-1 text-white-50" style="font-size: 0.72rem; padding: 3px 10px;" onclick="sendQuickQuery('How do I prepare for interviews?')">Interview Prep</button>
+    </div>
+    
+    <div class="floating-chat-footer">
+        <input type="text" class="form-control bg-dark text-white border-secondary-subtle py-2" id="chat-input" placeholder="Ask a question..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
+        <button class="btn btn-info rounded-3 px-3 py-2" type="button" onclick="sendChatMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+// Mock Interview & Chat Globals
+const resumeId = {{ resume_id }};
+const targetRole = "{{ analysis.target_role }}";
+const hrQuestions = {% if analysis.hr_questions %}{{ analysis.hr_questions|tojson }}{% else %}[]{% endif %};
+let currentQIdx = 0;
+
+// Character/Word count listener
+document.addEventListener("DOMContentLoaded", function() {
+    const mockTextarea = document.getElementById("mock-response");
+    if (mockTextarea) {
+        mockTextarea.addEventListener("input", function() {
+            const cleanText = mockTextarea.value.trim();
+            const words = cleanText ? cleanText.split(/\s+/).length : 0;
+            document.getElementById("word-counter").innerText = `${words} words`;
+        });
+    }
+});
+
+function submitAnswer() {
+    const textarea = document.getElementById("mock-response");
+    const answer = textarea.value.trim();
+    if (!answer) {
+        alert("Please enter a response before submitting.");
+        return;
+    }
+    
+    // Show spinner in placeholder
+    document.getElementById("awaiting-icon").classList.add("d-none");
+    document.getElementById("eval-spinner").classList.remove("d-none");
+    document.getElementById("awaiting-title").innerText = "Analyzing response...";
+    document.getElementById("awaiting-desc").innerText = "Evaluating STAR patterns and matching profile skills.";
+    
+    fetch('/evaluate_interview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            question: hrQuestions[currentQIdx] || "Tell me about yourself.",
+            response: answer,
+            target_role: targetRole
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Reset loader
+        document.getElementById("eval-spinner").classList.add("d-none");
+        document.getElementById("awaiting-icon").classList.remove("d-none");
+        document.getElementById("awaiting-title").innerText = "Awaiting Response";
+        document.getElementById("awaiting-desc").innerText = "Grade dashboard and constructive critique will load here.";
+        
+        // Hide placeholder and show actual grade
+        document.getElementById("grade-panel-placeholder").classList.add("d-none");
+        document.getElementById("grade-panel-actual").classList.remove("d-none");
+        
+        // Populate score
+        const scoreSpan = document.getElementById("grade-score");
+        scoreSpan.innerText = `${data.score}%`;
+        if (data.score >= 75) {
+            scoreSpan.className = "fs-1 fw-bold text-success";
+        } else if (data.score >= 50) {
+            scoreSpan.className = "fs-1 fw-bold text-info";
+        } else {
+            scoreSpan.className = "fs-1 fw-bold text-danger";
+        }
+        
+        // Populate Grammar
+        document.getElementById("grade-grammar").innerText = data.grammar_check;
+        
+        // Populate STAR badges
+        const badgesContainer = document.getElementById("star-badges");
+        badgesContainer.innerHTML = '';
+        const starSteps = [
+            { key: "situation", label: "S" },
+            { key: "task", label: "T" },
+            { key: "action", label: "A" },
+            { key: "result", label: "R" }
+        ];
+        starSteps.forEach(step => {
+            const hasIt = data.star_check[step.key];
+            const badge = document.createElement("span");
+            badge.innerText = step.label;
+            badge.className = hasIt ? "badge bg-success-subtle text-success border border-success" : "badge bg-danger-subtle text-danger border border-danger";
+            badgesContainer.appendChild(badge);
+        });
+        
+        // Populate feedback lists
+        const feedbackList = document.getElementById("grade-feedback-list");
+        feedbackList.innerHTML = '';
+        data.feedback.forEach(item => {
+            const li = document.createElement("li");
+            li.className = "mb-2 d-flex align-items-start";
+            li.innerHTML = `<i class="fa-solid fa-circle-chevron-right text-info me-2 mt-1"></i> <span>${item}</span>`;
+            feedbackList.appendChild(li);
+        });
+    })
+    .catch(err => {
+        alert("Failed to analyze response. Ensure python app server is running.");
+        console.error(err);
+    });
+}
+
+function nextQuestion() {
+    currentQIdx++;
+    if (currentQIdx >= hrQuestions.length) {
+        // Mock completed
+        document.getElementById("q-num").innerText = "5";
+        document.getElementById("question-text").innerText = "HR Mock Interview Completed! You have practiced all questions. Restarting...";
+        currentQIdx = -1; // resets next turn
+        document.getElementById("mock-response").value = '';
+        document.getElementById("word-counter").innerText = "0 words";
+        
+        document.getElementById("grade-panel-actual").classList.add("d-none");
+        document.getElementById("grade-panel-placeholder").classList.remove("d-none");
+        return;
+    }
+    
+    // Advance question UI
+    document.getElementById("q-num").innerText = currentQIdx + 1;
+    document.getElementById("question-text").innerText = hrQuestions[currentQIdx];
+    document.getElementById("mock-response").value = '';
+    document.getElementById("word-counter").innerText = "0 words";
+    
+    // Toggle boards
+    document.getElementById("grade-panel-actual").classList.add("d-none");
+    document.getElementById("grade-panel-placeholder").classList.remove("d-none");
+}
+
+// Chat Assistant functions
+function toggleFloatingChat() {
+    const container = document.getElementById("chat-widget-container");
+    container.classList.toggle("active");
+    
+    // Auto focus the input if active
+    if (container.classList.contains("active")) {
+        setTimeout(() => {
+            const inputEl = document.getElementById("chat-input");
+            if (inputEl) inputEl.focus();
+        }, 100);
+    }
+}
+
+function sendChatMessage() {
+    const input = document.getElementById("chat-input");
+    const query = input.value.trim();
+    if (!query) return;
+    
+    // Append user message
+    appendBubble(query, 'user');
+    input.value = '';
+    
+    // Append typing system bubble
+    const typingId = appendBubble("Thinking...", 'system-typing');
+    
+    fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: query,
+            resume_id: resumeId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Remove typing bubble
+        const typingBubble = document.getElementById(typingId);
+        if (typingBubble) typingBubble.remove();
+        
+        // Append response
+        appendBubble(data.response, 'system');
+    })
+    .catch(err => {
+        const typingBubble = document.getElementById(typingId);
+        if (typingBubble) typingBubble.remove();
+        appendBubble("Sorry, I failed to fetch an answer. Ensure the server is online.", 'system');
+    });
+}
+
+function sendQuickQuery(suggestion) {
+    document.getElementById("chat-input").value = suggestion;
+    sendChatMessage();
+}
+
+function appendBubble(content, type) {
+    const container = document.getElementById("chat-logs");
+    const msgId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+    
+    const wrapper = document.createElement("div");
+    wrapper.id = msgId;
+    
+    if (type === 'user') {
+        wrapper.className = "chat-msg user d-flex gap-2.5 max-width-75 align-self-end justify-content-end mb-3";
+        wrapper.innerHTML = `
+            <div class="p-3 rounded-3 bg-info text-dark small" style="border-bottom-right-radius: 0 !important;">
+                ${content}
+            </div>
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white" style="width: 32px; height: 32px; min-width: 32px;">
+                <i class="fa-solid fa-user" style="font-size: 0.85rem;"></i>
+            </div>
+        `;
+    } else if (type === 'system-typing') {
+        wrapper.className = "chat-msg system d-flex gap-2.5 max-width-75 mb-3";
+        wrapper.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-info text-dark" style="width: 32px; height: 32px; min-width: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div class="p-3 rounded-3 bg-dark bg-opacity-70 border border-secondary-subtle text-muted small" style="border-bottom-left-radius: 0 !important;">
+                <span class="spinner-grow spinner-grow-sm text-info" role="status"></span> ${content}
+            </div>
+        `;
+    } else {
+        wrapper.className = "chat-msg system d-flex gap-2.5 max-width-75 mb-3";
+        // Convert double asterisks to bold tag
+        const formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        wrapper.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center rounded-circle bg-info text-dark" style="width: 32px; height: 32px; min-width: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div class="p-3 rounded-3 bg-dark bg-opacity-70 border border-secondary-subtle text-white-50 small" style="border-bottom-left-radius: 0 !important;">
+                ${formattedContent}
+            </div>
+        `;
+    }
+    
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+    return msgId;
+}
+
+// Chart.js Configuration for Radar Chart
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('skillsRadarChart').getContext('2d');
+    
+    // Normalized dimensions for plotting (0-100)
+    const data = {
+        labels: ['CGPA Fit', 'Projects Density', 'Certifications', 'Internships Fit', 'ATS Compatibility', 'Skill Match'],
+        datasets: [{
+            label: 'Candidate Profile',
+            data: [
+                {{ analysis.metrics.cgpa }} * 10,
+                Math.min(100, {{ analysis.metrics.projects_count }} * 20),
+                Math.min(100, {{ analysis.metrics.certifications_count }} * 20),
+                Math.min(100, {{ analysis.metrics.internships_count }} * 33.3),
+                {{ analysis.ats_score }},
+                {{ analysis.skill_match_percentage }}
+            ],
+            fill: true,
+            backgroundColor: 'rgba(137, 180, 250, 0.2)',
+            borderColor: '#89b4fa',
+            pointBackgroundColor: '#89b4fa',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#89b4fa'
+        }, {
+            label: 'Benchmark Profile',
+            data: [75, 60, 40, 33.3, 70, 60], // Benchmark criteria
+            fill: true,
+            backgroundColor: 'rgba(203, 166, 247, 0.1)',
+            borderColor: 'rgba(203, 166, 247, 0.5)',
+            pointBackgroundColor: '#cba6f7',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#cba6f7'
+        }]
+    };
+    
+    const config = {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    pointLabels: {
+                        color: '#cdd6f4',
+                        font: {
+                            family: 'Outfit',
+                            size: 11
+                        }
+                    },
+                    ticks: {
+                        color: '#a6adc8',
+                        backdropColor: 'transparent',
+                        z: 10
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#cdd6f4',
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    new Chart(ctx, config);
+});
+</script>
+{% endblock %}

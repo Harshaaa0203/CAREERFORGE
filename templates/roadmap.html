@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-md-8 text-center text-md-start">
+        <span class="badge bg-secondary text-white mb-2 font-outfit uppercase fw-semibold tracking-wider">Roadmap Planner</span>
+        <h1 class="text-white font-outfit fw-bold mb-1">Career Forge Learning Roadmap</h1>
+        <p class="text-white-50 mb-0 font-inter">Custom preparation roadmap for <strong>{{ name }}</strong> targeting <strong>{{ roadmap.target_role }}</strong> role.</p>
+    </div>
+    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('dashboard', resume_id=resume_id) }}" class="btn btn-outline-info rounded-pill px-4">
+            <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Skill Gap Action Items -->
+<div class="glass-card p-4 mb-5">
+    <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-graduation-cap text-info me-2"></i> Skill Gap Resolution Catalog</h4>
+    <p class="text-white-50 small mb-4">We've mapped your detected skill gaps to highly-rated learning pathways, industry-recognized credentials, and hands-on projects to bootstrap your profile.</p>
+    
+    <div class="row g-4">
+        {% if roadmap.missing_skills_recommendations %}
+            {% for item in roadmap.missing_skills_recommendations %}
+                <div class="col-md-6">
+                    <div class="p-3 rounded bg-dark bg-opacity-40 border border-secondary-subtle h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-danger-subtle text-danger px-3 py-1.5 fs-6">{{ item.skill }}</span>
+                            <a href="{{ item.link }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Start Learning</a>
+                        </div>
+                        <ul class="list-unstyled mb-0 text-white-50 small">
+                            <li class="mb-2"><strong class="text-white">Course:</strong> {{ item.course }}</li>
+                            <li class="mb-2"><strong class="text-white">Certification:</strong> {{ item.certification }}</li>
+                            <li><strong class="text-white">Project Blueprint:</strong> {{ item.project_idea }}</li>
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-3 text-success">
+                <i class="fa-solid fa-circle-check fs-2 mb-2"></i>
+                <h5>No skill gaps found! Your skill alignment with this role is complete.</h5>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Timeline Roadmap -->
+<div class="row">
+    <div class="col-lg-8 mb-4 mb-lg-0">
+        <div class="glass-card p-4">
+            <h4 class="text-white font-outfit mb-4 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-route text-info me-2"></i> Structured Timeline (8 Weeks)</h4>
+            
+            <div class="roadmap-timeline">
+                {% for phase in roadmap.timeline %}
+                    {% set phase_index = loop.index0 %}
+                    <div class="roadmap-item">
+                        <h5 class="text-white font-outfit fw-bold">{{ phase.phase }}</h5>
+                        <p class="text-white-50 small mb-3">{{ phase.focus }}</p>
+                        
+                        <div class="bg-dark bg-opacity-30 rounded p-3 border border-secondary-subtle">
+                            <h6 class="text-info font-outfit small mb-2 uppercase fw-semibold">Milestone Checklist:</h6>
+                            {% for task in phase.checklist %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input milestone-checkbox" type="checkbox" id="task-{{ phase_index }}-{{ loop.index0 }}" data-resume-id="{{ resume_id }}" data-task-key="task-{{ phase_index }}-{{ loop.index0 }}">
+                                    <label class="form-check-label text-white-50 small" for="task-{{ phase_index }}-{{ loop.index0 }}">
+                                        {{ task }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Preparation & Recommendations Sidebar -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-user-tie text-info me-2"></i> Interview Strategy</h4>
+            <p class="text-white-50 small mb-0 font-inter leading-relaxed">
+                {{ roadmap.interview_strategy }}
+            </p>
+        </div>
+
+        <div class="glass-card p-4">
+            <h4 class="text-white font-outfit mb-3 border-bottom border-secondary-subtle pb-2"><i class="fa-solid fa-award text-info me-2"></i> Target Credentials</h4>
+            <p class="text-white-50 small mb-3">Earning these credentials will add substantial authority and validation to your professional profile:</p>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% if analysis and analysis.cert_recommendations %}
+                    {% for cert in analysis.cert_recommendations %}
+                        <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2.5 px-0 d-flex align-items-center justify-content-between">
+                            <span class="small"><i class="fa-solid fa-medal text-warning me-2"></i> {{ cert.name }}</span>
+                            <a href="{{ cert.link }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-0.5 font-inter text-nowrap" style="font-size: 0.75rem;">
+                                Info <i class="fa-solid fa-arrow-up-right-from-square ms-1" style="font-size: 0.65rem;"></i>
+                            </a>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    {% for cert in roadmap.recommended_certifications %}
+                        <li class="list-group-item bg-transparent text-white-50 border-secondary border-opacity-10 py-2 px-0 d-flex align-items-center">
+                            <i class="fa-solid fa-medal text-warning me-2.5"></i>
+                            <span class="small">{{ cert }}</span>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript to persist checklist progress using LocalStorage
+document.addEventListener("DOMContentLoaded", function() {
+    const checkboxes = document.querySelectorAll(".milestone-checkbox");
+    
+    // Load saved states
+    checkboxes.forEach(cb => {
+        const resumeId = cb.dataset.resumeId;
+        const taskKey = cb.dataset.taskKey;
+        const storageKey = `careerforge_progress_${resumeId}_${taskKey}`;
+        
+        const isChecked = localStorage.getItem(storageKey) === "true";
+        cb.checked = isChecked;
+        
+        // Update styling of parent items if already completed
+        updateTimelineMarker(cb);
+        
+        // Event listener
+        cb.addEventListener("change", function() {
+            localStorage.setItem(storageKey, cb.checked);
+            updateTimelineMarker(cb);
+        });
+    });
+    
+    function updateTimelineMarker(checkbox) {
+        const roadmapItem = checkbox.closest(".roadmap-item");
+        if (!roadmapItem) return;
+        
+        // Check if all checkboxes in this specific phase are checked
+        const phaseCheckboxes = roadmapItem.querySelectorAll(".milestone-checkbox");
+        let allChecked = true;
+        phaseCheckboxes.forEach(pcb => {
+            if (!pcb.checked) allChecked = false;
+        });
+        
+        if (allChecked) {
+            roadmapItem.classList.add("completed");
+        } else {
+            roadmapItem.classList.remove("completed");
+        }
+    }
+});
+</script>
+{% endblock %}

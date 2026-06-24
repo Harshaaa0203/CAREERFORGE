@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6 mb-4 mb-lg-0 text-center text-lg-start">
+        <h1 class="display-4 fw-extrabold text-white font-outfit mb-3 lh-sm">
+            Forge Your Career Path with <span class="text-gradient" style="background: linear-gradient(135deg, #89b4fa, #cba6f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CareerForge AI</span>
+        </h1>
+        <p class="lead text-white-50 mb-4 font-inter">
+            CareerForge AI is an intelligent placement readiness platform. Upload your resume to extract detailed metrics, calculate ATS scores, identify skill gaps, predict placement probability, and generate custom learning roadmaps.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+            <a href="#upload-section" class="btn btn-info rounded-pill px-4 py-2 fw-semibold shadow-lg">
+                <i class="fa-solid fa-play me-2"></i> Get Started
+            </a>
+            <a href="https://github.com" target="_blank" class="btn btn-outline-secondary rounded-pill px-4 py-2 hover-light">
+                <i class="fa-brands fa-github me-2"></i> View Docs
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6 text-center">
+        <!-- Visual dashboard illustration / image -->
+        <div class="p-3 glass-card mx-auto shadow-lg" style="max-width: 480px; transform: rotate(1deg);">
+            <div class="d-flex align-items-center justify-content-between border-bottom border-secondary-subtle pb-2 mb-3">
+                <span class="text-white-50 small"><i class="fa-solid fa-circle text-danger me-1"></i> ATS Compatibility Check</span>
+                <span class="badge bg-success-subtle text-success">Active AI Engine</span>
+            </div>
+            <div class="text-start mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small text-white-50">Overall Candidate Score</span>
+                    <span class="small fw-bold text-info">82.5%</span>
+                </div>
+                <div class="progress bg-dark" style="height: 8px;">
+                    <div class="progress-bar bg-info" style="width: 82.5%;"></div>
+                </div>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="p-2 bg-dark bg-opacity-50 rounded text-center">
+                        <span class="d-block text-white-50 small">Placement Prob</span>
+                        <span class="fw-bold text-success fs-5">91%</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-2 bg-dark bg-opacity-50 rounded text-center">
+                        <span class="d-block text-white-50 small">Skill Match</span>
+                        <span class="fw-bold text-warning fs-5">78%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-start bg-dark bg-opacity-25 p-2 rounded border border-secondary-subtle">
+                <span class="small text-white-50"><i class="fa-solid fa-lightbulb text-warning me-1"></i> Key Suggestion:</span>
+                <p class="small text-muted mb-0">Add "Docker" and "REST APIs" keywords to qualify for 34% more backend job vacancies.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="border-secondary-subtle my-5">
+
+<!-- Upload and Options Section -->
+<div id="upload-section" class="py-4">
+    <div class="text-center mb-5">
+        <h2 class="h1 fw-bold text-white font-outfit">Evaluate Employability</h2>
+        <p class="text-white-50">Configure your target professional job profile, then upload PDF resume(s) for instant reports.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 shadow-lg">
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-pills nav-pills-custom justify-content-center mb-4" id="uploadTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single-upload" type="button" role="tab" aria-controls="single-upload" aria-selected="true">
+                            <i class="fa-solid fa-file-invoice me-2"></i> Single Resume Analysis
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="compare-tab" data-bs-toggle="tab" data-bs-target="#compare-upload" type="button" role="tab" aria-controls="compare-upload" aria-selected="false">
+                            <i class="fa-solid fa-code-compare me-2"></i> Compare Two Resumes
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="uploadTabContent">
+                    <!-- Single Upload Form -->
+                    <div class="tab-pane fade show active" id="single-upload" role="tabpanel" aria-labelledby="single-tab">
+                        <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data" id="singleForm">
+                            <div class="mb-4">
+                                <label for="target_role" class="form-label text-white-50 fw-semibold">Target Job Role</label>
+                                <select class="form-select bg-dark text-white border-secondary-subtle py-2.5" name="target_role" id="target_role" required onchange="toggleCustomRoleFields(this, 'single')">
+                                    <option value="" disabled selected>-- Choose Target Professional Role --</option>
+                                    {% for role in roles %}
+                                        <option value="{{ role }}">{{ role }}</option>
+                                    {% endfor %}
+                                    <option value="Other">Other (Custom Role)</option>
+                                </select>
+                            </div>
+
+                            <!-- Dynamic Custom Role Inputs -->
+                            <div id="single-custom-fields" class="d-none mb-4 p-3 rounded bg-dark bg-opacity-25 border border-secondary-subtle">
+                                <div class="mb-3">
+                                    <label for="custom_role" class="form-label text-white-50 small fw-semibold">Custom Role Title</label>
+                                    <input type="text" class="form-control bg-dark text-white border-secondary-subtle" name="custom_role" id="custom_role" placeholder="e.g. Flutter Developer">
+                                </div>
+                                <div>
+                                    <label for="custom_skills" class="form-label text-white-50 small fw-semibold">Dynamic Required Skills (Comma separated)</label>
+                                    <input type="text" class="form-control bg-dark text-white border-secondary-subtle" name="custom_skills" id="custom_skills" placeholder="e.g. dart, flutter, state management, git, rest api">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-white-50 fw-semibold">Upload PDF Resume</label>
+                                <div class="upload-dropzone p-5 text-center" onclick="document.getElementById('resume').click()">
+                                    <i class="fa-solid fa-cloud-arrow-up text-info fs-1 mb-3"></i>
+                                    <h5 class="text-white">Drag & drop resume PDF here</h5>
+                                    <p class="text-muted small mb-0">Supported format: PDF only. Maximum size: 16 MB.</p>
+                                    <span class="badge bg-secondary mt-3 d-inline-block" id="single-file-name">No file chosen</span>
+                                </div>
+                                <input type="file" class="d-none" name="resume" id="resume" accept=".pdf" required onchange="updateFileName(this, 'single-file-name')">
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-info rounded-pill px-5 py-2.5 fw-bold shadow">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Run AI Analysis
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Dual Comparison Upload Form -->
+                    <div class="tab-pane fade" id="compare-upload" role="tabpanel" aria-labelledby="compare-tab">
+                        <form action="{{ url_for('compare') }}" method="POST" enctype="multipart/form-data" id="compareForm">
+                            <div class="mb-4">
+                                <label for="target_role_compare" class="form-label text-white-50 fw-semibold">Target Job Role (For both candidates)</label>
+                                <select class="form-select bg-dark text-white border-secondary-subtle py-2.5" name="target_role" id="target_role_compare" required>
+                                    <option value="" disabled selected>-- Choose Target Professional Role --</option>
+                                    {% for role in roles %}
+                                        <option value="{{ role }}">{{ role }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50 fw-semibold">Candidate Resume A</label>
+                                    <div class="upload-dropzone p-4 text-center" onclick="document.getElementById('resume_a').click()">
+                                        <i class="fa-solid fa-file-pdf text-info fs-2 mb-2"></i>
+                                        <h6 class="text-white">Choose Resume A</h6>
+                                        <span class="badge bg-secondary mt-2 d-inline-block" id="a-file-name">No file chosen</span>
+                                    </div>
+                                    <input type="file" class="d-none" name="resume_a" id="resume_a" accept=".pdf" required onchange="updateFileName(this, 'a-file-name')">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50 fw-semibold">Candidate Resume B</label>
+                                    <div class="upload-dropzone p-4 text-center" onclick="document.getElementById('resume_b').click()">
+                                        <i class="fa-solid fa-file-pdf text-info fs-2 mb-2"></i>
+                                        <h6 class="text-white">Choose Resume B</h6>
+                                        <span class="badge bg-secondary mt-2 d-inline-block" id="b-file-name">No file chosen</span>
+                                    </div>
+                                    <input type="file" class="d-none" name="resume_b" id="resume_b" accept=".pdf" required onchange="updateFileName(this, 'b-file-name')">
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-outline-info rounded-pill px-5 py-2.5 fw-bold shadow">
+                                    <i class="fa-solid fa-code-compare me-2"></i> Run Comparison Match
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Full-screen processing Loader Overlay -->
+<div id="loading-overlay">
+    <div class="text-center text-white">
+        <div class="spinner-border text-info mb-3" style="width: 4rem; height: 4rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="font-outfit fw-bold">CareerForge AI Parsing Engine...</h4>
+        <p class="text-white-50">Extracting skills, evaluating ATS checklist, and running ML prediction algorithms.</p>
+    </div>
+</div>
+
+<script>
+function toggleCustomRoleFields(selectObj, mode) {
+    const customDiv = document.getElementById(mode + '-custom-fields');
+    const customRoleInput = document.getElementById('custom_role');
+    
+    if (selectObj.value === "Other") {
+        customDiv.classList.remove('d-none');
+        customRoleInput.setAttribute('required', 'true');
+    } else {
+        customDiv.classList.add('d-none');
+        customRoleInput.removeAttribute('required');
+    }
+}
+
+function updateFileName(inputObj, badgeId) {
+    const badge = document.getElementById(badgeId);
+    if (inputObj.files && inputObj.files.length > 0) {
+        badge.innerText = inputObj.files[0].name;
+        badge.classList.remove('bg-secondary');
+        badge.classList.add('bg-info', 'text-dark');
+    } else {
+        badge.innerText = "No file chosen";
+        badge.classList.remove('bg-info', 'text-dark');
+        badge.classList.add('bg-secondary');
+    }
+}
+
+// Show processing loading page when form submits
+document.getElementById('singleForm').addEventListener('submit', function() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+});
+
+document.getElementById('compareForm').addEventListener('submit', function() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+});
+</script>
+{% endblock %}
